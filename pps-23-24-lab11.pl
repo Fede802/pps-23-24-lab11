@@ -64,6 +64,7 @@ from_list([H1, H2|T], [e(H1, H2)|L]) :- from_list([H2|T],L).
 
 from_circ_list([H|L], R) :- append([H|L],[H],CL), from_list(CL, R).
 
+out_degree([],_,0).
 out_degree([e(S,_)|T], S, N) :- out_degree(T, S, ON), N is ON + 1, !. 
 out_degree([H|T], S, N) :- out_degree(T,S,N).
-out_degree([],_,0).
+
