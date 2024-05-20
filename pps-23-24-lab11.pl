@@ -73,7 +73,7 @@ drop_node(G, N, OG) :- drop_all(e(N, _), G, G2), drop_all(e(_, N), G2, OG).
 reaching(G,N,L) :- findall(E, member(e(N,E), G), L).
 
 prepend_if_missing(E, L, L) :- member(E,L), !.
-prepend_if_missing(E, L, NL) :- write(L), nl, append([E], L, NL).
+prepend_if_missing(E, L, NL) :- append([E], L, NL).
 
 nodes([], []).
 nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_if_missing(SN, TL, NL).
