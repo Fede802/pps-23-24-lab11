@@ -36,6 +36,13 @@ max_min2([H|T], Max, Min) :- max_min2(T, Max, Min).
 split(L, 0, [], L).
 split([H|T], N, [H|T2], T3) :- NN is N - 1, split(T, NN, T2, T3), !.
 
+range(L,H,L).
+range(L,H,O) :- NL is L + 1, NL < H, range(NL, H, O).
+dice2(X) :- range(1,7,X).
+
+dice(X) :- member(X, [1,2,3,4,5,6]).
+
+three_dice(S, [X,Y,Z]) :- dice(X), dice(Y), dice(Z), S is X + Y + Z.
 
 
 
