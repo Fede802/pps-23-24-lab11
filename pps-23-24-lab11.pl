@@ -78,3 +78,13 @@ prepend_if_missing(E, L, NL) :- append([E], L, NL).
 nodes([], []).
 nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_if_missing(SN, TL, NL).
 
+%anypath([e(1,2),e(2,3),e(3,5)],1,5,L). 
+anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
+anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). % a ! here is better but then allreaching doesnt work
+
+
+
+%allreaching([e(1,2),e(2,3),e(3,5)],1,[2,3,5]). 
+allreaching(G, N, L) :- findall(E, anypath(G,N,E,R), L).
+
+
