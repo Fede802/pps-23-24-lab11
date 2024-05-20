@@ -36,6 +36,8 @@ max_min2([H|T], Max, Min) :- max_min2(T, Max, Min).
 split(L, 0, [], L).
 split([H|T], N, [H|T2], T3) :- NN is N - 1, split(T, NN, T2, T3), !.
 
+rotate([H,L], RL) :- append(L, [H], RL).
+
 range(L,H,L).
 range(L,H,O) :- NL is L + 1, NL < H, range(NL, H, O).
 dice2(X) :- range(1,7,X).
@@ -56,4 +58,10 @@ drop_last(X, [X|T], T).
 drop_all(X, [], []).
 drop_all(X, [X|T1], L) :- drop_all(X, T1, L), !.
 drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
+
+from_list([_], []).
+from_list([H1, H2|T], [e(H1, H2)|L]) :- from_list([H2|T],L).
+
+from_circ_list([H|L], R) :- append([H|L],[H],CL), from_list(CL, R).
+
 
