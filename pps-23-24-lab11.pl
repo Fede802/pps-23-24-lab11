@@ -56,8 +56,16 @@ drop_last(X, [X|T], T).
 
 %???
 drop_all(X, [], []).
-drop_all(X, [X|T1], L) :- drop_all(X, T1, L), !.
+drop_all(X, [Y|T1], L) :- copy_term(X,Y), drop_all(X, T1, L), !. %X is a template
 drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
+
+drop_all2(_, [], []).
+drop_all2(X, [Y | T], R) :- copy_term(X, Y), !, drop_all2(X, T, R).
+drop_all2(X, [H | Xs], [H | L]) :- H \= X, drop_all2(X, Xs, L).
+
+dropAll(_, [], []).
+dropAll(X, [X | T], L) :- dropAll(X, T, L).
+dropAll(X, [H | T], [H | L]) :- X \= H, dropAll(X, T, L).
 
 from_list([_], []).
 from_list([H1, H2|T], [e(H1, H2)|L]) :- from_list([H2|T],L).
@@ -68,3 +76,4 @@ out_degree([],_,0).
 out_degree([e(S,_)|T], S, N) :- out_degree(T, S, ON), N is ON + 1, !. 
 out_degree([H|T], S, N) :- out_degree(T,S,N).
 
+drop_node(G, N, OG) :- drop_all(e(N, _), G, G2), drop_all(e(_, N), G2, OG).
