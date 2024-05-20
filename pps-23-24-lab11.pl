@@ -44,6 +44,16 @@ dice(X) :- member(X, [1,2,3,4,5,6]).
 
 three_dice(S, [X,Y,Z]) :- dice(X), dice(Y), dice(Z), S is X + Y + Z.
 
+drop_any(X, [X|T], T).
+drop_any(X, [H|Xs], [H|L]) :- drop_any(X, Xs, L).
 
+drop_first(X, L, NL) :- drop_any(X, L, NL), !.
 
+drop_last(X, [H|Xs], [H|L]) :- drop_last(X, Xs, L), !.
+drop_last(X, [X|T], T).
+
+%???
+drop_all(X, [], []).
+drop_all(X, [X|T1], L) :- drop_all(X, T1, L), !.
+drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
 
