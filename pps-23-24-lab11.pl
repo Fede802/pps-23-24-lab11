@@ -105,29 +105,33 @@ next(Table, Player, Status, NewTable) :-
 	table_status(NewTable, Status).
 
 %next([[x,x,'_'],['_','_','_'],['_','_','_']], x, nothing, N).
-table_status(Table, winning) :- check_win(Table), !.
+table_status(Table, Winning) :- check_win(Table, Winning), !.
 table_status(Table, draw) :- check_draw(Table), !.
 table_status(_, nothing).
 
-check_win([[M,_,_],[M,_,_],[M,_,_]]) :- player(M).
-check_win([[_,M,_],[_,M,_],[_,M,_]]) :- player(M).
-check_win([[_,_,M],[_,_,M],[_,_,M]]) :- player(M).
+check_win([[M,_,_],[M,_,_],[M,_,_]], R) :- if_player_build_message(M, R).
+check_win([[_,M,_],[_,M,_],[_,M,_]], R) :- if_player_build_message(M, R).
+check_win([[_,_,M],[_,_,M],[_,_,M]], R) :- if_player_build_message(M, R).
 
-check_win([[M,M,M], [_,_,_], [_,_,_]]) :- player(M).
-check_win([_, [M,M,M], _]) :- player(M).
-check_win([_, _, [M,M,M]]) :- player(M).
+check_win([[M,M,M], [_,_,_], [_,_,_]], R) :- if_player_build_message(M, R).
+check_win([_, [M,M,M], _], R) :- if_player_build_message(M, R).
+check_win([_, _, [M,M,M]], R) :- if_player_build_message(M, R).
 
-check_win([[M,_,_],[_,M,_],[_,_,M]]) :- player(M).
-check_win([[_,_,M],[_,M,_],[M,_,_]]) :- player(M).
+check_win([[M,_,_],[_,M,_],[_,_,M]], R) :- if_player_build_message(M, R).
+check_win([[_,_,M],[_,M,_],[M,_,_]], R) :- if_player_build_message(M, R).
+
+if_player_build_message(M,R) :- player(M), atom_concat('win(', M, IR), atom_concat(IR, ')', R).
 
 player(x).
 player(o).
+switch_player(x, o).
+switch_player(o, x).
 
 full([E1,E2,E3]) :- player(E1), player(E2), player(E3).
 check_draw([Row1,Row2,Row3]) :- full(Row1), full(Row2), full(Row3).
 
 %next([[n,n,n],[n,n,n],[n,n,n]], x, nothing, N).
-place_mark(['_'],Player,[Player]).
+place_mark(['_'],Player,[Player]) :- !.
 place_mark(['_'|T], Player, [Player|T]).
 place_mark([Tile|T], Player, [Tile|NewTable]) :- place_mark(T,Player,NewTable).
 
@@ -135,7 +139,13 @@ make_move([Row1,Row2,Row3], Player, [NewRow1,Row2,Row3]) :- place_mark(Row1, Pla
 make_move([Row1,Row2,Row3], Player, [Row1,NewRow2,Row3]) :- place_mark(Row2, Player, NewRow2).
 make_move([Row1,Row2,Row3], Player, [Row1,Row2,NewRow3]) :- place_mark(Row3, Player, NewRow3).
 
+next_if_not_done(Table, Player, Result, NewTable) :- copy_term(Result,nothing), next(Table, Player, Result, NewTable).
 
+game(Table, _,_,[Table]).
+game(Table, Player, Result, [Table, NewTable|T]) :- 
+	next_if_not_done(Table, Player, Result, NewTable),
+	switch_player(Player, NewPlayer), 
+	game(NewTable, NewPlayer, Result, T).
 
 
 
