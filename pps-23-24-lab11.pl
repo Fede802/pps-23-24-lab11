@@ -2,6 +2,8 @@
 range(L, H, L).
 range(L, H, O) :- NL is L + 1, NL < H, range(NL, H, O).
 
+prepend_if_missing(E, L, L) :- member(E,L), !.
+prepend_if_missing(E, L, NL) :- append([E], L, NL).
 %-----------------------------------------------------------------------------------------Ex 1-----------------------------------------------------------------------------------------
 %Ex 1.1
 %search2(Elem, List)
@@ -55,8 +57,8 @@ max_min2([H|T], Max, Min) :- max_min2(T, Max, Min).
 %split(List1, Elements, SubList1, SubList2)
 %Examples:
 %split([10,20,30,40,50], 2, L1, L2). -> yes, L1/[10,20] L2/[30,40,50]
-split(L, 0, [], L).
-split([H|T], N, [H|T2], T3) :- NN is N - 1, split(T, NN, T2, T3), !.
+split(L2, 0, [], L2).
+split([H|T], N, [H|T2], L2) :- NN is N - 1, split(T, NN, T2, L2), !.
 
 %Ex 1.7
 %rotate(List, RotatedList)
@@ -81,60 +83,110 @@ three_dice(S, [X,Y,Z]) :- dice(X), dice(Y), dice(Z), S is X + Y + Z.
 %Ex 2.1
 %drop_any(?Elem, ?List, ?OutList)
 %Examples:
-%drop_any(10, [10,20,10,30,10], L) -> yes, L/[20,10,30,10]; L/[10,20,30,10]; L/[10,20,10,30]
-drop_any(X, [X|T], T).
-drop_any(X, [H|Xs], [H|L]) :- drop_any(X, Xs, L).
+%drop_any(10, [10,20,10,30,10], L). -> yes, L/[20,10,30,10]; L/[10,20,30,10]; L/[10,20,10,30]
+drop_any(E, [E|T], T).
+drop_any(E, [H|T], [H|L]) :- drop_any(E, T, L).
 
 %Ex 2.2
 %drop_first(?Elem, ?List, ?OutList)
 %Examples:
-%drop_first(10, [10,20,10,30,10], L) -> yes, L/[20,10,30,10]
-drop_first(X, L, NL) :- drop_any(X, L, NL), !.
+%drop_first(10, [10,20,10,30,10], L). -> yes, L/[20,10,30,10]
+drop_first(E, L, OL) :- drop_any(E, L, OL), !.
 
 %drop_last(?Elem, ?List, ?OutList)
 %Examples:
-%drop_last(10, [10,20,10,30,10], L) -> yes, L/[10,20,10,30]
-drop_last(X, [H|Xs], [H|L]) :- drop_last(X, Xs, L), !.
-drop_last(X, [X|T], T).
+%drop_last(10, [10,20,10,30,10], L). -> yes, L/[10,20,10,30]
+drop_last(E, [H|T], [H|L]) :- drop_last(E, T, L), !.
+drop_last(E, [E|T], T).
 
 %drop_all(?Elem, ?List, ?OutList)
 %Examples:
-%drop_all(10, [10,20,10,30,10], L) -> yes, L/[20,30]
-drop_all(X, [], []).
-drop_all(X, [Y|T1], L) :- copy_term(X,Y), !, drop_all(X, T1, L), !. %X is a template
-drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
+%drop_all(10, [10,20,10,30,10], L). -> yes, L/[20,30]
+drop_all(E, [], []).
+drop_all(E, [CE|T1], OL) :- copy_term(E, CE), !, drop_all(E, T1, OL), !. %X is a template
+drop_all(E, [H|T], [H|L]) :- drop_all(E, T, L).
 
-drop_all2(X, L, RL) :- drop_first(X, L, TRL), drop_all2(X, TRL, RL), !.
-drop_all2(X, L, L).
+drop_all2(E, L, OL) :- drop_first(E, L, TOL), drop_all2(E, TOL, OL), !.
+drop_all2(E, L, L).
 
 %-----------------------------------------------------------------------------------------Ex 3-----------------------------------------------------------------------------------------
+%Ex 3.1
+%from_list(+List, -Graph)
+%Examples:
+%from_list([1,2,3],[e(1,2),e(2,3)]).
+%from_list([1,2],[e(1,2)]).
+%from_list([1],[]).
 from_list([_], []).
 from_list([H1, H2|T], [e(H1, H2)|L]) :- from_list([H2|T],L).
 
-from_circ_list([H|L], R) :- append([H|L],[H],CL), from_list(CL, R).
+%Ex 3.2
+%from_circ_list(+List, -Graph)
+%Examples:
+%from_circ_list([1,2,3],[e(1,2),e(2,3),e(3,1)]).
+%from_circ_list([1,2],[e(1,2),e(2,1)]).
+%from_circ_list([1],[e(1,1)]).
+from_circ_list([H|L], G) :- append([H|L], [H], CL), from_list(CL, G).
 
-out_degree([],_,0).
-out_degree([e(S,_)|T], S, N) :- out_degree(T, S, ON), N is ON + 1, !. 
-out_degree([H|T], S, N) :- out_degree(T,S,N).
+%Ex 3.3
+%out_degree(+Graph, +Node, -Deg)
+%Examples:
+%out_degree([e(1,2), e(1,3), e(3,2)], 2, 0).
+%out_degree([e(1,2), e(1,3), e(3,2)], 3, 1).
+%out_degree([e(1,2), e(1,3), e(3,2)], 1, 2).
+out_degree([], _, 0).
+out_degree([e(N,_)|T], N, D) :- out_degree(T, N, OD), D is OD + 1, !. 
+out_degree([H|T], N, D) :- out_degree(T, N, D).
 
-drop_node(G, N, OG) :- drop_all(e(N, _), G, G2), drop_all(e(_, N), G2, OG).
+%Ex 3.4
+%drop_node(+Graph, +Node, -OutGraph)
+%Examples:
+%drop_node([e(1,2),e(1,3),e(2,3)], 1, [e(2,3)]).
+drop_node(G, N, OG) :- drop_all(e(N, _), G, TOG), drop_all(e(_, N), TOG, OG).
 
-reaching(G,N,L) :- findall(E, member(e(N,E), G), L).
+%Ex 3.5
+%reaching(+Graph, +Node, -List)
+%Examples:
+%reaching([e(1,2),e(1,3),e(2,3)], 1, L). -> yes, L/[2,3]
+%reaching([e(1,2),e(1,2),e(2,3)], 1, L). -> yes, L/[2,2]).
+reaching(G, N, L) :- findall(E, member(e(N,E), G), L).
 
-prepend_if_missing(E, L, L) :- member(E,L), !.
-prepend_if_missing(E, L, NL) :- append([E], L, NL).
-
+%Ex 3.6
+%nodes(+Graph, -Nodes)
+%Examples:
+%nodes([e(1,2),e(2,3),e(3,4)], L). -> yes, L/[1,2,3,4]
+%nodes([e(1,2),e(1,3)], L). -> yes, L/[2,1,3].
 nodes([], []).
 nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_if_missing(SN, TL, NL).
 
-%anypath([e(1,2),e(2,3),e(3,5)],1,5,L). 
+%Ex 3.7
+%anypath(+Graph, +StartNode, +EndNode, -ListPath)
+%Examples:
+%anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)] 
 anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
 anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). % a ! here is better but then allreaching doesnt work
 
-%allreaching([e(1,2),e(2,3),e(3,5)],1,[2,3,5]). 
+%Ex 3.8
+%allreaching(+Graph, +Node, -List)
+%Examples:
+%allreaching([e(1,2),e(2,3),e(3,5)], 1, [2,3,5]). 
 allreaching(G, N, L) :- findall(E, anypath(G,N,E,R), L).
 
-%???
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%Ex 3.9 ???
 interval (A , B , A ).
 interval (A , B , X ):- A2 is A +1 , A2 < B , interval ( A2 , B , X).
 
@@ -148,6 +200,8 @@ gridlink (N , M , link (X , Y , X2 , Y2 )):-
 	interval (0 , M , Y ) ,
 	neighbour (X , Y , X2 , Y2 ) ,
  	X2 >= 0, Y2 >= 0, X2 < N , Y2 < M.
+
+%-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
 
 next(Table, Player, Status, NewTable) :-
 	make_move(Table, Player, NewTable),
