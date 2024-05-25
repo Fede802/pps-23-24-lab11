@@ -1,6 +1,6 @@
 %utils
-range(L,H,L).
-range(L,H,O) :- NL is L + 1, NL < H, range(NL, H, O).
+range(L, H, L).
+range(L, H, O) :- NL is L + 1, NL < H, range(NL, H, O).
 
 %-----------------------------------------------------------------------------------------Ex 1-----------------------------------------------------------------------------------------
 %Ex 1.1
@@ -40,12 +40,12 @@ sum([H|T], S) :- sum(T, TS), S is TS + H.
 %Ex 1.5
 %max_min(List, Max, Min)
 %Examples:
-%max_min([3, 1, 5], X, Y). -> yes, X/5 Y/1
+%max_min([3,1,5], X, Y). -> yes, X/5 Y/1
 max_min([], Max, Max, Min, Min).
 max_min([H|T], TMax, Max, TMin, Min) :- H >= TMax, max_min(T, H, Max, TMin, Min).
 max_min([H|T], TMax, Max, TMin, Min) :- H =< TMin, max_min(T, TMax, Max, H, Min).
 max_min([H|T], Max, Min) :- max_min(T, H, Max, H, Min), !.
-%max_min2([3, 1, 5], X, Y). -> yes, X/5 Y/1
+%max_min2([3,1,5], X, Y). -> yes, X/5 Y/1
 max_min2([H], H, H).
 max_min2([H|T], H, Min) :- max_min2(T, Max, Min), H >= Max, !.
 max_min2([H|T], Max, H) :- max_min2(T, Max, Min), H =< Min, !.
@@ -54,43 +54,60 @@ max_min2([H|T], Max, Min) :- max_min2(T, Max, Min).
 %Ex 1.6
 %split(List1, Elements, SubList1, SubList2)
 %Examples:
-%split ([10 ,20 ,30 ,40 ,50] ,2 ,L1 ,L2)
+%split([10,20,30,40,50], 2, L1, L2). -> yes, L1/[10,20] L2/[30,40,50]
 split(L, 0, [], L).
 split([H|T], N, [H|T2], T3) :- NN is N - 1, split(T, NN, T2, T3), !.
 
 %Ex 1.7
 %rotate(List, RotatedList)
 %Examples:
-%rotate([10 ,20 ,30 ,40], L).
-rotate([H,L], RL) :- append(L, [H], RL).
+%rotate([10,20,30,40], L). -> yes, L/[20,30,40,10]
+rotate([H|L], RL) :- append(L, [H], RL).
 
 %Ex 1.8
 %dice(X)
 %Examples:
 %dice(X). -> yes, X/1; X/2; ... X/6
 dice(X) :- member(X, [1,2,3,4,5,6]).
-dice2(X) :- range(1,7,X).
+dice2(X) :- range(1, 7, X).
 
 %Ex 1.9
-%three_dice (TotalFaceSum, FacesResultList).
+%three_dice(TotalFaceSum, FacesResultList).
 %Examples:
-%three_dice (5 , L). -> yes, L/[1 ,1 ,3]; L/[1 ,2 ,2];...;L/[3 ,1 ,1]
+%three_dice(5,L). -> yes, L/[1 ,1 ,3]; L/[1 ,2 ,2];...;L/[3 ,1 ,1]
 three_dice(S, [X,Y,Z]) :- dice(X), dice(Y), dice(Z), S is X + Y + Z.
 
 %-----------------------------------------------------------------------------------------Ex 2-----------------------------------------------------------------------------------------
+%Ex 2.1
+%drop_any(?Elem, ?List, ?OutList)
+%Examples:
+%drop_any(10, [10,20,10,30,10], L) -> yes, L/[20,10,30,10]; L/[10,20,30,10]; L/[10,20,10,30]
 drop_any(X, [X|T], T).
 drop_any(X, [H|Xs], [H|L]) :- drop_any(X, Xs, L).
 
+%Ex 2.2
+%drop_first(?Elem, ?List, ?OutList)
+%Examples:
+%drop_first(10, [10,20,10,30,10], L) -> yes, L/[20,10,30,10]
 drop_first(X, L, NL) :- drop_any(X, L, NL), !.
 
+%drop_last(?Elem, ?List, ?OutList)
+%Examples:
+%drop_last(10, [10,20,10,30,10], L) -> yes, L/[10,20,10,30]
 drop_last(X, [H|Xs], [H|L]) :- drop_last(X, Xs, L), !.
 drop_last(X, [X|T], T).
 
-%??? drop first multiple times?
+%drop_all(?Elem, ?List, ?OutList)
+%Examples:
+%drop_all(10, [10,20,10,30,10], L) -> yes, L/[20,30]
 drop_all(X, [], []).
 drop_all(X, [Y|T1], L) :- copy_term(X,Y), !, drop_all(X, T1, L), !. %X is a template
 drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
 
+drop_all2(X, L, RL) :- drop_first(X, L, TRL), drop_all2(X, TRL, RL), !.
+drop_all2(X, L, L).
+
+%-----------------------------------------------------------------------------------------Ex 3-----------------------------------------------------------------------------------------
 from_list([_], []).
 from_list([H1, H2|T], [e(H1, H2)|L]) :- from_list([H2|T],L).
 
