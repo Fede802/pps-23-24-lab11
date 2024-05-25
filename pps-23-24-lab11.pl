@@ -1,3 +1,11 @@
+%utils
+range(L,H,L).
+range(L,H,O) :- NL is L + 1, NL < H, range(NL, H, O).
+
+%-----------------------------------------------------------------------------------------Ex 1-----------------------------------------------------------------------------------------
+%Ex 1.1
+%search2(Elem, List)
+%Examples:
 %search2(a, [c,a,a,d,a,a]). -> yes, two solution
 %search2(a, [c,a,a,a]). -> yes, two solution
 %search2(a, [c,a,a,b]). -> yes
@@ -6,46 +14,70 @@
 search2(E, [E,E|T]).
 search2(E, [H|T]) :- search2(E, T).
 
-%search_two(a, [b,c,a,a,d,e]). ? no
-%search_two(a, [b,c,a,d,a,d,e]). ? yes
+%Ex 1.2
+%search_two(Elem, List)
+%Examples:
+%search_two(a, [b,c,a,a,d,e]). -> no
+%search_two(a, [b,c,a,d,a,d,e]). -> yes
 search_two(E, [E,_,E|T]).
 search_two(E, [H|T]) :- search_two(E, T).
 
-%size([b,c,a,d,a,d,e], 7). ? yes
+%Ex 1.3
+%size(List, Size)
+%Examples:
+%size([b,c,a,d,a,d,e], 7). -> yes
 %size(X,Y). -> fully relational
 size([], 0).
 size([H|T], S) :- size(T, TS), S is TS + 1.
 
-%sum([1,2,3], X). ? yes, X/6
+%Ex 1.4 
+%sum(List, Sum)
+%Examples:
+%sum([1,2,3], X). -> yes, X/6
 sum([], 0).
 sum([H|T], S) :- sum(T, TS), S is TS + H.
 
+%Ex 1.5
+%max_min(List, Max, Min)
+%Examples:
 %max_min([3, 1, 5], X, Y). -> yes, X/5 Y/1
 max_min([], Max, Max, Min, Min).
 max_min([H|T], TMax, Max, TMin, Min) :- H >= TMax, max_min(T, H, Max, TMin, Min).
 max_min([H|T], TMax, Max, TMin, Min) :- H =< TMin, max_min(T, TMax, Max, H, Min).
 max_min([H|T], Max, Min) :- max_min(T, H, Max, H, Min), !.
-
 %max_min2([3, 1, 5], X, Y). -> yes, X/5 Y/1
 max_min2([H], H, H).
 max_min2([H|T], H, Min) :- max_min2(T, Max, Min), H >= Max, !.
 max_min2([H|T], Max, H) :- max_min2(T, Max, Min), H =< Min, !.
 max_min2([H|T], Max, Min) :- max_min2(T, Max, Min).
 
+%Ex 1.6
+%split(List1, Elements, SubList1, SubList2)
+%Examples:
 %split ([10 ,20 ,30 ,40 ,50] ,2 ,L1 ,L2)
 split(L, 0, [], L).
 split([H|T], N, [H|T2], T3) :- NN is N - 1, split(T, NN, T2, T3), !.
 
+%Ex 1.7
+%rotate(List, RotatedList)
+%Examples:
+%rotate([10 ,20 ,30 ,40], L).
 rotate([H,L], RL) :- append(L, [H], RL).
 
-range(L,H,L).
-range(L,H,O) :- NL is L + 1, NL < H, range(NL, H, O).
+%Ex 1.8
+%dice(X)
+%Examples:
+%dice(X). -> yes, X/1; X/2; ... X/6
+dice(X) :- member(X, [1,2,3,4,5,6]).
 dice2(X) :- range(1,7,X).
 
-dice(X) :- member(X, [1,2,3,4,5,6]).
-
+%Ex 1.9
+%three_dice (TotalFaceSum, FacesResultList).
+%Examples:
+%three_dice (5 , L). -> yes, L/[1 ,1 ,3]; L/[1 ,2 ,2];...;L/[3 ,1 ,1]
 three_dice(S, [X,Y,Z]) :- dice(X), dice(Y), dice(Z), S is X + Y + Z.
 
+%-----------------------------------------------------------------------------------------Ex 2-----------------------------------------------------------------------------------------
 drop_any(X, [X|T], T).
 drop_any(X, [H|Xs], [H|L]) :- drop_any(X, Xs, L).
 
