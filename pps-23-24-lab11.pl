@@ -54,7 +54,7 @@ drop_first(X, L, NL) :- drop_any(X, L, NL), !.
 drop_last(X, [H|Xs], [H|L]) :- drop_last(X, Xs, L), !.
 drop_last(X, [X|T], T).
 
-%???
+%??? drop first multiple times?
 drop_all(X, [], []).
 drop_all(X, [Y|T1], L) :- copy_term(X,Y), !, drop_all(X, T1, L), !. %X is a template
 drop_all(X, [H|Xs], [H|L]) :- drop_all(X, Xs, L).
@@ -82,9 +82,80 @@ nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_
 anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
 anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). % a ! here is better but then allreaching doesnt work
 
-
-
 %allreaching([e(1,2),e(2,3),e(3,5)],1,[2,3,5]). 
 allreaching(G, N, L) :- findall(E, anypath(G,N,E,R), L).
+
+%???
+interval (A , B , A ).
+interval (A , B , X ):- A2 is A +1 , A2 < B , interval ( A2 , B , X).
+
+neighbour (A , B , A , B2 ):- B2 is B +1.
+neighbour (A , B , A , B2 ):- B2 is B -1.
+neighbour (A , B , A2 , B):- A2 is A +1.
+neighbour (A , B , A2 , B):- A2 is A -1.
+
+gridlink (N , M , link (X , Y , X2 , Y2 )):-
+	interval (0 , N , X ) ,
+	interval (0 , M , Y ) ,
+	neighbour (X , Y , X2 , Y2 ) ,
+ 	X2 >= 0, Y2 >= 0, X2 < N , Y2 < M.
+
+next(Table, Player, Status, NewTable) :-
+	make_move(Table, Player, NewTable),
+	table_status(NewTable, Status).
+
+%next([[x,x,'_'],['_','_','_'],['_','_','_']], x, nothing, N).
+table_status(Table, winning) :- check_win(Table), !.
+table_status(Table, draw) :- check_draw(Table), !.
+table_status(_, nothing).
+
+check_win([[M,_,_],[M,_,_],[M,_,_]]) :- player(M).
+check_win([[_,M,_],[_,M,_],[_,M,_]]) :- player(M).
+check_win([[_,_,M],[_,_,M],[_,_,M]]) :- player(M).
+
+check_win([[M,M,M], [_,_,_], [_,_,_]]) :- player(M).
+check_win([_, [M,M,M], _]) :- player(M).
+check_win([_, _, [M,M,M]]) :- player(M).
+
+check_win([[M,_,_],[_,M,_],[_,_,M]]) :- player(M).
+check_win([[_,_,M],[_,M,_],[M,_,_]]) :- player(M).
+
+player(x).
+player(o).
+
+full([E1,E2,E3]) :- player(E1), player(E2), player(E3).
+check_draw([Row1,Row2,Row3]) :- full(Row1), full(Row2), full(Row3).
+
+%next([[n,n,n],[n,n,n],[n,n,n]], x, nothing, N).
+place_mark(['_'],Player,[Player]).
+place_mark(['_'|T], Player, [Player|T]).
+place_mark([Tile|T], Player, [Tile|NewTable]) :- place_mark(T,Player,NewTable).
+
+make_move([Row1,Row2,Row3], Player, [NewRow1,Row2,Row3]) :- place_mark(Row1, Player, NewRow1).
+make_move([Row1,Row2,Row3], Player, [Row1,NewRow2,Row3]) :- place_mark(Row2, Player, NewRow2).
+make_move([Row1,Row2,Row3], Player, [Row1,Row2,NewRow3]) :- place_mark(Row3, Player, NewRow3).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
