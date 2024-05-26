@@ -198,10 +198,15 @@ build_graph(Rows, Columns, Graph) :- findall(Edge, gridlink(Rows, Columns, Edge)
 
 list_length([], 0).
 list_length([_|T], L) :- list_length(T, N), L is N + 1.
-%build_graph(3,3,G), allreachingmaxhops(G, 1, L, 1). %fix anypath to avoid loop
-allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), list_length(P, Len), Len =< MaxHops), L).
+%build_graph(3,3,G), allreachingmaxhops(G, 1, L, 1). -> yes L/[[e(1,2)],[e(1,0)],[e(1,4)]] 
 
+%maybe something like this is better but anypath has looping problems
+%allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), list_length(P, Len), Len =< MaxHops), L).
 
+anypathmaxhops(G, SN, EN, [e(SN,EN)], H) :- H > 0, member(e(SN,EN), G).
+anypathmaxhops(G, SN, EN, [e(SN, N)|P], H) :- H > 0, member(e(SN,N), G), RH is H - 1, anypathmaxhops(G, N, EN, P, RH).
+
+allreachingmaxhops(G, N, L, H) :- findall(P, anypathmaxhops(G, N, E, P, H), L).
 %-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
 %player
 
