@@ -202,54 +202,58 @@ gridlink (N , M , link (X , Y , X2 , Y2 )):-
  	X2 >= 0, Y2 >= 0, X2 < N , Y2 < M.
 
 %-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
-
-next(Table, Player, Status, NewTable) :-
-	make_move(Table, Player, NewTable),
-	table_status(NewTable, Status).
-
-%next([[x,x,'_'],['_','_','_'],['_','_','_']], x, nothing, N).
-table_status(Table, Winning) :- check_win(Table, Winning), !.
-table_status(Table, draw) :- check_draw(Table), !.
-table_status(_, nothing).
-
-check_win([[M,_,_],[M,_,_],[M,_,_]], R) :- if_player_build_message(M, R).
-check_win([[_,M,_],[_,M,_],[_,M,_]], R) :- if_player_build_message(M, R).
-check_win([[_,_,M],[_,_,M],[_,_,M]], R) :- if_player_build_message(M, R).
-
-check_win([[M,M,M], [_,_,_], [_,_,_]], R) :- if_player_build_message(M, R).
-check_win([_, [M,M,M], _], R) :- if_player_build_message(M, R).
-check_win([_, _, [M,M,M]], R) :- if_player_build_message(M, R).
-
-check_win([[M,_,_],[_,M,_],[_,_,M]], R) :- if_player_build_message(M, R).
-check_win([[_,_,M],[_,M,_],[M,_,_]], R) :- if_player_build_message(M, R).
-
-if_player_build_message(M,R) :- player(M), atom_concat('win(', M, IR), atom_concat(IR, ')', R).
+%player
 
 player(x).
 player(o).
+
 switch_player(x, o).
 switch_player(o, x).
 
-full([E1,E2,E3]) :- player(E1), player(E2), player(E3).
-check_draw([Row1,Row2,Row3]) :- full(Row1), full(Row2), full(Row3).
+if_player_build_win_message(M,R) :- player(M), atom_concat('win(', M, IR), atom_concat(IR, ')', R).
 
-%next([[n,n,n],[n,n,n],[n,n,n]], x, nothing, N).
-place_mark(['_'],Player,[Player]) :- !.
-place_mark(['_'|T], Player, [Player|T]).
-place_mark([Tile|T], Player, [Tile|NewTable]) :- place_mark(T,Player,NewTable).
+%next(@Table, @Player, -Result, -NewTable)
+%Examples:
+%next([['_','_','_'],['_','_','_'],['_','_','_']], x, S, NT).
+next(Table, Player, Status, NewTable) :-
+	make_move(Table, Player, NewTable),
+	table_status(NewTable, Status).
 
 make_move([Row1,Row2,Row3], Player, [NewRow1,Row2,Row3]) :- place_mark(Row1, Player, NewRow1).
 make_move([Row1,Row2,Row3], Player, [Row1,NewRow2,Row3]) :- place_mark(Row2, Player, NewRow2).
 make_move([Row1,Row2,Row3], Player, [Row1,Row2,NewRow3]) :- place_mark(Row3, Player, NewRow3).
 
-next_if_not_done(Table, Player, Result, NewTable) :- copy_term(Result,nothing), next(Table, Player, Result, NewTable).
+place_mark(['_'],Player,[Player]) :- !. %optimization
+place_mark(['_'|T], Player, [Player|T]).
+place_mark([Tile|T], Player, [Tile|NewTable]) :- place_mark(T,Player,NewTable).
 
-game(Table, _,_,[Table]).
-game(Table, Player, Result, [Table, NewTable|T]) :- 
-	next_if_not_done(Table, Player, Result, NewTable),
+table_status(Table, WinningMsg) :- check_win(Table, WinningMsg), !.
+table_status(Table, draw) :- check_draw(Table), !.
+table_status(_, nothing).
+
+check_win([[M,_,_],[M,_,_],[M,_,_]], R) :- if_player_build_win_message(M, R).
+check_win([[_,M,_],[_,M,_],[_,M,_]], R) :- if_player_build_win_message(M, R).
+check_win([[_,_,M],[_,_,M],[_,_,M]], R) :- if_player_build_win_message(M, R).
+
+check_win([[M,M,M], [_,_,_], [_,_,_]], R) :- if_player_build_win_message(M, R).
+check_win([_, [M,M,M], _], R) :- if_player_build_win_message(M, R).
+check_win([_, _, [M,M,M]], R) :- if_player_build_win_message(M, R).
+
+check_win([[M,_,_],[_,M,_],[_,_,M]], R) :- if_player_build_win_message(M, R).
+check_win([[_,_,M],[_,M,_],[M,_,_]], R) :- if_player_build_win_message(M, R).
+
+check_draw([Row1,Row2,Row3]) :- full(Row1), full(Row2), full(Row3).
+full([E1,E2,E3]) :- player(E1), player(E2), player(E3).
+
+%game(@Table, @Player, -Result, -TableList)
+%game([['_','_','_'],['_','_','_'],['_','_','_']], x, S, TL).
+game(Table, _, _,[Table]).
+game(Table, Player, Status, [Table, NewTable|T]) :- 
+	next_if_not_done(Table, Player, Status, NewTable),
 	switch_player(Player, NewPlayer), 
-	game(NewTable, NewPlayer, Result, T).
+	game(NewTable, NewPlayer, Status, T).
 
+next_if_not_done(Table, Player, Status, NewTable) :- copy_term(Status,nothing), next(Table, Player, Status, NewTable).
 
 
 
