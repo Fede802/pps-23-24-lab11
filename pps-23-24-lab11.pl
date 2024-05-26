@@ -162,13 +162,21 @@ nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_
 %anypath(+Graph, +StartNode, +EndNode, -ListPath)
 %Examples:
 %anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)]
-anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
-anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). 
+%looping problem
+%anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
+%anypath(G, SN, EN, NP) :- member(e(SN, N), G), anypath(G, N, EN, P), not(member(e(SN,N),P)), append([e(SN,N)], P, NP). 
+
+%no looping problem but requires a topological ordering of the vertices
+anypath2([e(SN, EN) | T], SN, EN, [e(SN, EN)]).
+anypath2([e(SN, N) | T], SN, EN, [e(SN, N)|P]) :- anypath2(T, N, EN, P).
+anypath2([_|T], SN, EN, P) :- anypath2(T, SN, EN, P).
+
 
 %Ex 3.8
 %allreaching(+Graph, +Node, -List)
 %Examples:
 %allreaching([e(1,2),e(2,3),e(3,5)], 1, [2,3,5]). 
+%allreaching([], _, []).???
 allreaching(G, N, L) :- findall(E, anypath(G, N, E, _), L).
 
 %Ex 3.9 ???
@@ -206,7 +214,7 @@ list_length([_|T], L) :- list_length(T, N), L is N + 1.
 anypathmaxhops(G, SN, EN, [e(SN,EN)], H) :- H > 0, member(e(SN,EN), G).
 anypathmaxhops(G, SN, EN, [e(SN, N)|P], H) :- H > 0, member(e(SN,N), G), RH is H - 1, anypathmaxhops(G, N, EN, P, RH).
 
-allreachingmaxhops(G, N, L, H) :- findall(P, anypathmaxhops(G, N, E, P, H), L).
+allreachingmaxhops(G, N, L, H) :- findall(P, anypathmaxhops(G, N, _, P, H), L).
 %-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
 %player
 
