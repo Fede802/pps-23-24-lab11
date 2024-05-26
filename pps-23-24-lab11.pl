@@ -162,15 +162,14 @@ nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_
 %anypath(+Graph, +StartNode, +EndNode, -ListPath)
 %Examples:
 %anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)]
-
-anypath(G, SN, EN, [e(SN,EN)]) :- write(4), member(e(SN,EN), G), write(5), nl.
-anypath(G, SN, EN, [e(SN, N)|P]) :- write(1), member(e(SN,N), G), write(2), anypath(G, N, EN, P), !. 
+anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
+anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). 
 
 %Ex 3.8
 %allreaching(+Graph, +Node, -List)
 %Examples:
 %allreaching([e(1,2),e(2,3),e(3,5)], 1, [2,3,5]). 
-allreaching(G, N, L) :- findall(E, (nodes(G, NL), member(E, NL), anypath(G,N,E,R)), L).
+allreaching(G, N, L) :- findall(E, anypath(G, N, E, _), L).
 
 %Ex 3.9 ???
 interval(A, B, A).
