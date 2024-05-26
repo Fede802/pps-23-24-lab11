@@ -172,7 +172,7 @@ nodes2([e(SN, EN)|T], NL) :- nodes2(T, L), insert_in_order_if_missing(EN, L, TL)
 %anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)]
 %looping problem
 %anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
-%anypath(G, SN, EN, NP) :- member(e(SN, N), G), anypath(G, N, EN, P), not(member(e(SN,N),P)), append([e(SN,N)], P, NP). 
+%anypath(G, SN, EN, NP) :- member(e(SN, N), G), anypath(G, N, EN, P). 
 
 %no looping problem but requires a topological ordering of the vertices
 anypath2([e(SN, EN) | T], SN, EN, [e(SN, EN)]).
