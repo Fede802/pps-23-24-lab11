@@ -1,9 +1,14 @@
 %utils
-range(L, H, L).
+range(L, _, L).
 range(L, H, O) :- NL is L + 1, NL < H, range(NL, H, O).
 
 prepend_if_missing(E, L, L) :- member(E,L), !.
 prepend_if_missing(E, L, NL) :- append([E], L, NL).
+
+insert_in_order_if_missing(E, L, L):- member(E,L), !.
+insert_in_order_if_missing(E, [], [E]).
+insert_in_order_if_missing(E, [H|T], [E,H|T]) :- E < H, !.
+insert_in_order_if_missing(E, [H|T], [H|L]) :- insert_in_order_if_missing(E, T, L).
 %-----------------------------------------------------------------------------------------Ex 1-----------------------------------------------------------------------------------------
 %Ex 1.1
 %search2(Elem, List)
@@ -157,6 +162,9 @@ reaching(G, N, L) :- findall(E, member(e(N,E), G), L).
 %nodes([e(1,2),e(1,3)], L). -> yes, L/[2,1,3].
 nodes([], []).
 nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_if_missing(SN, TL, NL).
+
+nodes2([], []).
+nodes2([e(SN, EN)|T], NL) :- nodes2(T, L), insert_in_order_if_missing(EN, L, TL), insert_in_order_if_missing(SN, TL, NL).
 
 %Ex 3.7
 %anypath(+Graph, +StartNode, +EndNode, -ListPath)
