@@ -161,45 +161,47 @@ nodes([e(SN, EN)|T], NL) :- nodes(T, L), prepend_if_missing(EN, L, TL), prepend_
 %Ex 3.7
 %anypath(+Graph, +StartNode, +EndNode, -ListPath)
 %Examples:
-%anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)] 
-anypath(G, SN, EN, [e(SN,EN)]) :- member(e(SN,EN), G).
-anypath(G, SN, EN, [e(SN, N)|P]) :- member(e(SN,N), G), anypath(G, N, EN, P). % a ! here is better but then allreaching doesnt work
+%anypath([e(1,2),e(1,3),e(2,3)], 1, 3, L). -> yes, L/[e(1,3)]; L/[e(1,2),e(2,3)]
+
+anypath(G, SN, EN, [e(SN,EN)]) :- write(4), member(e(SN,EN), G), write(5), nl.
+anypath(G, SN, EN, [e(SN, N)|P]) :- write(1), member(e(SN,N), G), write(2), anypath(G, N, EN, P), !. 
 
 %Ex 3.8
 %allreaching(+Graph, +Node, -List)
 %Examples:
 %allreaching([e(1,2),e(2,3),e(3,5)], 1, [2,3,5]). 
-allreaching(G, N, L) :- findall(E, anypath(G,N,E,R), L).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+allreaching(G, N, L) :- findall(E, (nodes(G, NL), member(E, NL), anypath(G,N,E,R)), L).
 
 %Ex 3.9 ???
-interval (A , B , A ).
-interval (A , B , X ):- A2 is A +1 , A2 < B , interval ( A2 , B , X).
+interval(A, B, A).
+interval(A, B, X):- A2 is A + 1, A2 < B, interval(A2, B, X).
 
-neighbour (A , B , A , B2 ):- B2 is B +1.
-neighbour (A , B , A , B2 ):- B2 is B -1.
-neighbour (A , B , A2 , B):- A2 is A +1.
-neighbour (A , B , A2 , B):- A2 is A -1.
+neighbour(A, B, A, B2):- B2 is B + 1.
+neighbour(A, B, A, B2):- B2 is B - 1.
+neighbour(A, B, A2, B):- A2 is A + 1.
+neighbour(A, B, A2, B):- A2 is A - 1.
 
-gridlink (N , M , link (X , Y , X2 , Y2 )):-
-	interval (0 , N , X ) ,
-	interval (0 , M , Y ) ,
-	neighbour (X , Y , X2 , Y2 ) ,
- 	X2 >= 0, Y2 >= 0, X2 < N , Y2 < M.
+%gridlink(2,2,Arc). -> yes, Arc/e(0,1); Arc/e(0,2); Arc/e(1,0); Arc/e(1,3); Arc/e(2,3); Arc/e(2,0); Arc/e(3,2); Arc/e(3,1)
+% node0 ? node1
+%   ?       ?
+% node2 ? node3
+gridlink(Rows, Columns, e(StartNode, EndNode)):-
+	interval(0, Rows, CurrentRow),
+	interval(0, Columns, CurrentColumn),
+	neighbour (CurrentRow, CurrentColumn, NeighbourRow, NeighbourColumn),
+ 	NeighbourRow >= 0, NeighbourColumn >= 0, NeighbourRow < Rows, NeighbourColumn < Columns,
+ 	StartNodeShift is CurrentRow * Columns,
+ 	StartNode is CurrentColumn + StartNodeShift,
+ 	EndNodeShift is NeighbourRow * Columns,
+ 	EndNode is NeighbourColumn + EndNodeShift.
+
+build_graph(Rows, Columns, Graph) :- findall(Edge, gridlink(Rows, Columns, Edge), Graph).
+
+list_length([], 0).
+list_length([_|T], L) :- list_length(T, N), L is N + 1.
+%build_graph(3,3,G), allreachingmaxhops(G, 1, L, 1). %fix anypath to avoid loop
+allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), list_length(P, Len), Len =< MaxHops), L).
+
 
 %-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
 %player
