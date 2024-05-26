@@ -18,16 +18,16 @@ insert_in_order_if_missing(E, [H|T], [H|L]) :- insert_in_order_if_missing(E, T, 
 %search2(a, [c,a,a,b]). -> yes
 %search2(a, L). -> yes, infinite solution
 %search2(a, [_,a,_a,_]). -> yes, three solution
-search2(E, [E,E|T]).
-search2(E, [H|T]) :- search2(E, T).
+search2(E, [E,E|_]).
+search2(E, [_|T]) :- search2(E, T).
 
 %Ex 1.2
 %search_two(Elem, List)
 %Examples:
 %search_two(a, [b,c,a,a,d,e]). -> no
 %search_two(a, [b,c,a,d,a,d,e]). -> yes
-search_two(E, [E,_,E|T]).
-search_two(E, [H|T]) :- search_two(E, T).
+search_two(E, [E,_,E|_]).
+search_two(E, [_|T]) :- search_two(E, T).
 
 %Ex 1.3
 %size(List, Size)
@@ -35,7 +35,7 @@ search_two(E, [H|T]) :- search_two(E, T).
 %size([b,c,a,d,a,d,e], 7). -> yes
 %size(X,Y). -> fully relational
 size([], 0).
-size([H|T], S) :- size(T, TS), S is TS + 1.
+size([_|T], S) :- size(T, TS), S is TS + 1.
 
 %Ex 1.4 
 %sum(List, Sum)
@@ -112,7 +112,7 @@ drop_all(E, [CE|T1], OL) :- copy_term(E, CE), !, drop_all(E, T1, OL), !. %X is a
 drop_all(E, [H|T], [H|L]) :- drop_all(E, T, L).
 
 drop_all2(E, L, OL) :- drop_first(E, L, TOL), drop_all2(E, TOL, OL), !.
-drop_all2(E, L, L).
+drop_all2(_, L, L).
 
 %-----------------------------------------------------------------------------------------Ex 3-----------------------------------------------------------------------------------------
 %Ex 3.1
@@ -140,7 +140,7 @@ from_circ_list([H|L], G) :- append([H|L], [H], CL), from_list(CL, G).
 %out_degree([e(1,2), e(1,3), e(3,2)], 1, 2).
 out_degree([], _, 0).
 out_degree([e(N,_)|T], N, D) :- out_degree(T, N, OD), D is OD + 1, !. 
-out_degree([H|T], N, D) :- out_degree(T, N, D).
+out_degree([_|T], N, D) :- out_degree(T, N, D).
 
 %Ex 3.4
 %drop_node(+Graph, +Node, -OutGraph)
@@ -188,7 +188,7 @@ anypath2([_|T], SN, EN, P) :- anypath2(T, SN, EN, P).
 allreaching(G, N, L) :- findall(E, anypath(G, N, E, _), L).
 
 %Ex 3.9 ???
-interval(A, B, A).
+interval(A, _, A).
 interval(A, B, X):- A2 is A + 1, A2 < B, interval(A2, B, X).
 
 neighbour(A, B, A, B2):- B2 is B + 1.
@@ -212,12 +212,11 @@ gridlink(Rows, Columns, e(StartNode, EndNode)):-
 
 build_graph(Rows, Columns, Graph) :- findall(Edge, gridlink(Rows, Columns, Edge), Graph).
 
-list_length([], 0).
-list_length([_|T], L) :- list_length(T, N), L is N + 1.
+
 %build_graph(3,3,G), allreachingmaxhops(G, 1, L, 1). -> yes L/[[e(1,2)],[e(1,0)],[e(1,4)]] 
 
 %maybe something like this is better but anypath has looping problems
-%allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), list_length(P, Len), Len =< MaxHops), L).
+%allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), size(P, Size), Size =< MaxHops), L).
 
 anypathmaxhops(G, SN, EN, [e(SN,EN)], H) :- H > 0, member(e(SN,EN), G).
 anypathmaxhops(G, SN, EN, [e(SN, N)|P], H) :- H > 0, member(e(SN,N), G), RH is H - 1, anypathmaxhops(G, N, EN, P, RH).
