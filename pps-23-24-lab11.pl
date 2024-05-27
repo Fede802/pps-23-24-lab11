@@ -181,7 +181,7 @@ anypath(G, SN, EN, [e(SN,N)|P]) :- member(e(SN, N), G), anypath(G, N, EN, P).
 
 %no looping problem
 anypath3(G, SN, EN, [e(SN,EN)], _) :- member(e(SN,EN), G).
-anypath3(G, SN, EN, [e(SN,N)|P], ES) :- not(member(e(SN,N), ES)), member(e(SN, N), G), anypath3(G, N, EN, P, [e(SN,N)|ES]). 
+anypath3(G, SN, EN, [e(SN,N)|P], EdgeSet) :- not(member(e(SN,N), EdgeSet)), member(e(SN, N), G), anypath3(G, N, EN, P, [e(SN,N)|EdgeSet]). 
 anypath3(G, SN, EN, P) :- write(qui), anypath3(G, SN, EN, P, []).
 
 %Ex 3.8
