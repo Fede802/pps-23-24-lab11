@@ -179,12 +179,15 @@ anypath(G, SN, EN, [e(SN,N)|P]) :- member(e(SN, N), G), anypath(G, N, EN, P).
 %anypath2([e(SN, N) | T], SN, EN, [e(SN, N)|P]) :- anypath2(T, N, EN, P).
 %anypath2([_|T], SN, EN, P) :- anypath2(T, SN, EN, P).
 
+%no looping problem
+anypath3(G, SN, EN, [e(SN,EN)], _) :- member(e(SN,EN), G).
+anypath3(G, SN, EN, [e(SN,N)|P], ES) :- not(member(e(SN,N), ES)), member(e(SN, N), G), anypath3(G, N, EN, P, [e(SN,N)|ES]). 
+anypath3(G, SN, EN, P) :- write(qui), anypath3(G, SN, EN, P, []).
 
 %Ex 3.8
 %allreaching(+Graph, +Node, -List)
 %Examples:
 %allreaching([e(1,2),e(2,3),e(3,5)], 1, [2,3,5]). 
-%allreaching([], _, []).???
 allreaching(G, N, L) :- findall(E, anypath(G, N, E, _), L).
 
 %Ex 3.9 ???
@@ -215,13 +218,13 @@ build_graph(Rows, Columns, Graph) :- findall(Edge, gridlink(Rows, Columns, Edge)
 
 %build_graph(3,3,G), allreachingmaxhops(G, 1, L, 1). -> yes L/[[e(1,2)],[e(1,0)],[e(1,4)]] 
 
-%maybe something like this is better but anypath has looping problems
-%allreachingmaxhops(G, N, L, MaxHops) :- findall(P, (anypath(G,N,E,P), size(P, Size), Size =< MaxHops), L).
-
 anypathmaxhops(G, SN, EN, [e(SN,EN)], H) :- H > 0, member(e(SN,EN), G).
 anypathmaxhops(G, SN, EN, [e(SN, N)|P], H) :- H > 0, member(e(SN,N), G), RH is H - 1, anypathmaxhops(G, N, EN, P, RH).
 
 allreachingmaxhops(G, N, L, H) :- findall(P, anypathmaxhops(G, N, _, P, H), L).
+
+%using a anypath predicate without looping problem
+allreachingmaxhops2(G, N, L, MaxHops) :- findall(P, (anypath3(G,N,E,P), size(P, Size), Size =< MaxHops), L).
 %-----------------------------------------------------------------------------------------Ex 4-----------------------------------------------------------------------------------------
 %player
 
